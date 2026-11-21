@@ -1,7 +1,27 @@
+from typing import Literal
+from pydantic import BaseModel
 
 import json
 
 from llm_client import LLMClient
+
+
+class HypothesisEvaluation(BaseModel):
+    id: int
+    explains: list[str]
+    contradictions: list[str]
+    assumptions: list[str]
+
+
+class EvaluationResult(BaseModel):
+    evaluations: list[HypothesisEvaluation]
+    best_id: int | None
+    confidence: Literal[
+        "низкая",
+        "средняя",
+        "высокая"
+    ]
+    reason: str
 
 
 def evaluate_hypotheses(
@@ -96,7 +116,9 @@ def evaluate_hypotheses(
             data, ensure_ascii=False, indent=2
         ),
         temperature=0.0,
-        max_tokens=1200
+        max_tokens=4500,
+        think=True,
+        response_schema=EvaluationResult.model_json_schema()
     )
 
     # Извлекаем JSON из ответа.
@@ -137,7 +159,14 @@ def evaluate_hypotheses(
             if not isinstance(value, list) or not all(
                 isinstance(x, str) for x in value
             ):
-                raise ValueError(f"Некорректное поле {field}")
+                raise ValueError(
+                    f"Гипотеза H{item.get('id')}\n"
+                    f"Некорректное поле: {field}\n"
+                    f"Тип: {type(value).__name__}\n"
+                    f"Значение: {value!r}\n\n"
+                    f"Полный JSON:\n"
+                    f"{json.dumps(result, ensure_ascii=False, indent=2)}"
+                )
 
     best_id = result.get("best_id")
 

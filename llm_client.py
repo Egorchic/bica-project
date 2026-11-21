@@ -1,65 +1,73 @@
-import os
+
 import time
 
-from dotenv import load_dotenv
-from openai import OpenAI
-
-load_dotenv()
+from ollama import Client
 
 
 class LLMClient:
     def __init__(self):
-        # api_key = os.getenv("OPENROUTER_API_KEY")
-        #
-        # if not api_key:
-        #     raise RuntimeError("Не найден OPENROUTER_API_KEY")
-        #
-        # self.model = os.getenv(
-        #     "OPENROUTER_MODEL",
-        #     "google/gemma-4-31b-it:free"
-        # )
-        #
-        # self.client = OpenAI(
-        #     api_key=api_key,
-        #     base_url="https://openrouter.ai/api/v1",
-        #     timeout=60,
-        #     max_retries=0
-        # )
-
         self.model = "deepseek-r1:8b"
 
-        self.client = OpenAI(
-            api_key="ollama",
-            base_url="http://localhost:11434/v1",
-            timeout=180,
-            max_retries=0
+        self.client = Client(
+            host="http://localhost:11434",
+            timeout=600
         )
 
     def generate(
         self,
         system_prompt: str,
         user_prompt: str,
-        temperature: float = 0.7,
-        max_tokens: int = 500
+        temperature: float = 0.6,
+        max_tokens: int = 4096,
+        think: bool = True,
+        response_schema: dict | None = None
     ) -> str:
+
         start = time.perf_counter()
 
-        response = self.client.chat.completions.create(
+        response = self.client.chat(
             model=self.model,
             messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_prompt}
+                {
+                    "role": "system",
+                    "content": system_prompt
+                },
+                {
+                    "role": "user",
+                    "content": user_prompt
+                }
             ],
-            temperature=temperature,
-            max_tokens=max_tokens
+            think=think,
+            format=response_schema if response_schema is not None else "json",
+            stream=False,
+            options={
+                "temperature": temperature,
+                "num_predict": max_tokens,
+                "num_ctx": 8192
+            }
         )
 
         elapsed = time.perf_counter() - start
-        print(f"[LLM] Время генерации: {elapsed:.2f} с")
 
-        content = response.choices[0].message.content
+        content = (response.message.content or "").strip()
+        thinking = response.message.thinking or ""
+
+        print(f"[LLM] Модель: {self.model}")
+        print(f"[LLM] Время: {elapsed:.2f} с")
+        print(f"[LLM] Завершение: {response.done_reason}")
+        print(f"[LLM] Выходных токенов: {response.eval_count}")
+        print(f"[LLM] Символов рассуждений: {len(thinking)}")
+        print(f"[LLM] Символов ответа: {len(content)}")
+
+        if response.done_reason == "length":
+            raise ValueError(
+                "Модель исчерпала бюджет генерации. "
+                f"Лимит: {max_tokens} токенов."
+            )
 
         if not content:
-            raise ValueError("Модель вернула пустой ответ")
+            raise ValueError(
+                "Модель не сформировала окончательный ответ"
+            )
 
-        return content.strip()
+        return content

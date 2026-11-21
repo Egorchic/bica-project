@@ -60,7 +60,8 @@ def check_contradictions(
         system_prompt=system_prompt,
         user_prompt=user_prompt,
         temperature=0.0,
-        max_tokens=250
+        max_tokens=4000,
+        think=True
     )
 
     start = raw.find("{")

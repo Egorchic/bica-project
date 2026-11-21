@@ -63,8 +63,9 @@ def generate_hypotheses(
     raw_response = llm.generate(
         system_prompt=system_prompt,
         user_prompt=user_prompt,
-        temperature=0.7,
-        max_tokens=500
+        temperature=0.3,
+        max_tokens=3500,
+        think=False
     )
 
     # Пробуем разобрать ответ модели как JSON.
