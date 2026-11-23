@@ -2,3 +2,7 @@
 .venv/
 __pycache__/
 .idea
+*.egg-info/
+results/
+.pytest_cache/
+*.pyc
