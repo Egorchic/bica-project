@@ -1,0 +1,349 @@
+{
+  "id": "wet_clothes_choice_clean",
+  "mode": "provided",
+  "observations": [
+    "A person returned home wearing wet clothes.",
+    "Throughout that day, there was no atmospheric precipitation at any place the person visited.",
+    "The person owns a red notebook."
+  ],
+  "hypotheses": {
+    "H1": "The person got soaked while walking in the rain.",
+    "H2": "Water from a garden sprinkler splashed onto the person."
+  },
+  "rounds": [
+    {
+      "round": 1,
+      "observations": [
+        "A person returned home wearing wet clothes."
+      ],
+      "hypotheses": {
+        "H1": "The person got soaked while walking in the rain.",
+        "H2": "Water from a garden sprinkler splashed onto the person."
+      },
+      "evaluations": {
+        "H1": {
+          "F1": {
+            "relation": "UNKNOWN",
+            "reason": "The fact that the person's clothes are wet is consistent with H1 (rain exposure), but does not uniquely confirm it, as other causes (e.g., swimming, spills) could also explain the wetness. Compatibility alone does not constitute positive evidence for this specific hypothesis."
+          }
+        },
+        "H2": {
+          "F1": {
+            "relation": "SUPPORT",
+            "reason": "Wet clothes can result from water splashed by a garden sprinkler, making the fact consistent with the hypothesis."
+          }
+        }
+      },
+      "selection": {
+        "chosen": "H1",
+        "counts": {
+          "H1": 1
+        },
+        "votes": [
+          {
+            "answer": "H1",
+            "text": "ANSWER: H1"
+          }
+        ],
+        "tie_breaker": null
+      },
+      "critique": {
+        "verdict": "REVISE",
+        "note": "The evaluation correctly identifies that H1's compatibility with F1 is non-unique (UNKNOWN), while H2's compatibility is direct (SUPPORT). Choosing H1 despite H2 being supported contradicts the abductive principle of selecting the hypothesis most strongly corroborated by the evidence. This misalignment constitutes a concrete error in reasoning.",
+        "text": "The evaluation correctly identifies that H1's compatibility with F1 is non-unique (UNKNOWN), while H2's compatibility is direct (SUPPORT). Choosing H1 despite H2 being supported contradicts the abductive principle of selecting the hypothesis most strongly corroborated by the evidence. This misalignment constitutes a concrete error in reasoning.  \nREVIEW: REVISE"
+      },
+      "revision": {
+        "evaluations": {
+          "H1": {
+            "F1": {
+              "relation": "UNKNOWN",
+              "reason": "The fact is compatible with H1 (rain could cause wet clothes) but does not uniquely support it, as other causes (e.g., swimming, sprinklers) also produce wet clothes."
+            }
+          },
+          "H2": {
+            "F1": {
+              "relation": "SUPPORT",
+              "reason": "The fact of wet clothes directly aligns with the hypothesis of water from a garden sprinkler splashing onto the person, as both involve water exposure consistent with the scenario."
+            }
+          }
+        },
+        "selection": {
+          "chosen": "H2",
+          "counts": {
+            "H2": 1
+          },
+          "votes": [
+            {
+              "answer": "H2",
+              "text": "ANSWER: H2"
+            }
+          ],
+          "tie_breaker": null
+        }
+      },
+      "final": "H2",
+      "previous_final": null,
+      "changed_from_previous": null,
+      "seconds": 1418.6,
+      "tokens": 4213,
+      "calls": [
+        {
+          "stage": "evaluate H1",
+          "seconds": 160.58,
+          "tokens": 453,
+          "done_reason": "stop",
+          "response": "F1: UNKNOWN | The fact that the person's clothes are wet is consistent with H1 (rain exposure), but does not uniquely confirm it, as other causes (e.g., swimming, spills) could also explain the wetness. Compatibility alone does not constitute positive evidence for this specific hypothesis."
+        },
+        {
+          "stage": "evaluate H2",
+          "seconds": 102.36,
+          "tokens": 310,
+          "done_reason": "stop",
+          "response": "F1: SUPPORT | Wet clothes can result from water splashed by a garden sprinkler, making the fact consistent with the hypothesis."
+        },
+        {
+          "stage": "select 1/1",
+          "seconds": 297.38,
+          "tokens": 905,
+          "done_reason": "stop",
+          "response": "ANSWER: H1"
+        },
+        {
+          "stage": "self-refine critique",
+          "seconds": 151.03,
+          "tokens": 449,
+          "done_reason": "stop",
+          "response": "The evaluation correctly identifies that H1's compatibility with F1 is non-unique (UNKNOWN), while H2's compatibility is direct (SUPPORT). Choosing H1 despite H2 being supported contradicts the abductive principle of selecting the hypothesis most strongly corroborated by the evidence. This misalignment constitutes a concrete error in reasoning.  \nREVIEW: REVISE"
+        },
+        {
+          "stage": "evaluate H1",
+          "seconds": 194.33,
+          "tokens": 586,
+          "done_reason": "stop",
+          "response": "F1: UNKNOWN | The fact is compatible with H1 (rain could cause wet clothes) but does not uniquely support it, as other causes (e.g., swimming, sprinklers) also produce wet clothes."
+        },
+        {
+          "stage": "evaluate H2",
+          "seconds": 97.28,
+          "tokens": 285,
+          "done_reason": "stop",
+          "response": "F1: SUPPORT | The fact of wet clothes directly aligns with the hypothesis of water from a garden sprinkler splashing onto the person, as both involve water exposure consistent with the scenario."
+        },
+        {
+          "stage": "select 1/1",
+          "seconds": 415.64,
+          "tokens": 1225,
+          "done_reason": "stop",
+          "response": "ANSWER: H2"
+        }
+      ],
+      "configuration": {
+        "k": 1,
+        "n_generate": 3,
+        "evaluate": true,
+        "self_refine": true,
+        "history": true
+      },
+      "model": "qwen3:14b"
+    },
+    {
+      "round": 2,
+      "observations": [
+        "A person returned home wearing wet clothes.",
+        "Throughout that day, there was no atmospheric precipitation at any place the person visited."
+      ],
+      "hypotheses": {
+        "H1": "The person got soaked while walking in the rain.",
+        "H2": "Water from a garden sprinkler splashed onto the person."
+      },
+      "evaluations": {
+        "H1": {
+          "F1": {
+            "relation": "SUPPORT",
+            "reason": "Wet clothes are consistent with getting soaked in the rain."
+          },
+          "F2": {
+            "relation": "CONTRADICT",
+            "reason": "No atmospheric precipitation rules out rain as the cause of being soaked."
+          }
+        },
+        "H2": {
+          "F1": {
+            "relation": "SUPPORT",
+            "reason": "Wet clothes could result from a garden sprinkler splashing the person."
+          },
+          "F2": {
+            "relation": "UNKNOWN",
+            "reason": "Lack of precipitation does not rule out a garden sprinkler as a source of water."
+          }
+        }
+      },
+      "selection": {
+        "chosen": "H2",
+        "counts": {
+          "H2": 1
+        },
+        "votes": [
+          {
+            "answer": "H2",
+            "text": "ANSWER: H2"
+          }
+        ],
+        "tie_breaker": null
+      },
+      "critique": {
+        "verdict": "KEEP",
+        "note": "The evaluation correctly identifies that H1 is contradicted by F2 (no rain) and H2 is supported by F1 (wet clothes). The claim that H1's compatibility with F1 is \"non-unique\" (UNKNOWN) is incorrect; F1 directly supports H1 as wet clothes align with being soaked in rain. The earlier decision to choose H2 over H1 is valid, as H2 is better supported by the evidence. No concrete reasoning errors are identified in the current evaluation.",
+        "text": "The evaluation correctly identifies that H1 is contradicted by F2 (no rain) and H2 is supported by F1 (wet clothes). The claim that H1's compatibility with F1 is \"non-unique\" (UNKNOWN) is incorrect; F1 directly supports H1 as wet clothes align with being soaked in rain. The earlier decision to choose H2 over H1 is valid, as H2 is better supported by the evidence. No concrete reasoning errors are identified in the current evaluation.  \nREVIEW: KEEP"
+      },
+      "revision": null,
+      "final": "H2",
+      "previous_final": "H2",
+      "changed_from_previous": false,
+      "seconds": 74.75,
+      "tokens": 2908,
+      "calls": [
+        {
+          "stage": "evaluate H1",
+          "seconds": 18.33,
+          "tokens": 536,
+          "done_reason": "stop",
+          "response": "F1: SUPPORT | Wet clothes are consistent with getting soaked in the rain.  \nF2: CONTRADICT | No atmospheric precipitation rules out rain as the cause of being soaked."
+        },
+        {
+          "stage": "evaluate H2",
+          "seconds": 7.21,
+          "tokens": 300,
+          "done_reason": "stop",
+          "response": "F1: SUPPORT | Wet clothes could result from a garden sprinkler splashing the person.  \nF2: UNKNOWN | Lack of precipitation does not rule out a garden sprinkler as a source of water."
+        },
+        {
+          "stage": "select 1/1",
+          "seconds": 17.53,
+          "tokens": 742,
+          "done_reason": "stop",
+          "response": "ANSWER: H2"
+        },
+        {
+          "stage": "self-refine critique",
+          "seconds": 31.68,
+          "tokens": 1330,
+          "done_reason": "stop",
+          "response": "The evaluation correctly identifies that H1 is contradicted by F2 (no rain) and H2 is supported by F1 (wet clothes). The claim that H1's compatibility with F1 is \"non-unique\" (UNKNOWN) is incorrect; F1 directly supports H1 as wet clothes align with being soaked in rain. The earlier decision to choose H2 over H1 is valid, as H2 is better supported by the evidence. No concrete reasoning errors are identified in the current evaluation.  \nREVIEW: KEEP"
+        }
+      ],
+      "configuration": {
+        "k": 1,
+        "n_generate": 3,
+        "evaluate": true,
+        "self_refine": true,
+        "history": true
+      },
+      "model": "qwen3:14b"
+    },
+    {
+      "round": 3,
+      "observations": [
+        "A person returned home wearing wet clothes.",
+        "Throughout that day, there was no atmospheric precipitation at any place the person visited.",
+        "The person owns a red notebook."
+      ],
+      "hypotheses": {
+        "H1": "The person got soaked while walking in the rain.",
+        "H2": "Water from a garden sprinkler splashed onto the person."
+      },
+      "evaluations": {
+        "H1": {
+          "F1": {
+            "relation": "SUPPORT",
+            "reason": "Wet clothes are consistent with getting soaked in the rain."
+          },
+          "F2": {
+            "relation": "CONTRADICT",
+            "reason": "No precipitation contradicts the hypothesis of getting soaked in the rain."
+          },
+          "F3": {
+            "relation": "UNKNOWN",
+            "reason": "Ownership of a red notebook is unrelated to the hypothesis."
+          }
+        },
+        "H2": {
+          "F1": {
+            "relation": "SUPPORT",
+            "reason": "Wet clothes could result from a garden sprinkler splashing the person."
+          },
+          "F2": {
+            "relation": "UNKNOWN",
+            "reason": "Lack of precipitation does not rule out a garden sprinkler as a source of water."
+          },
+          "F3": {
+            "relation": "UNKNOWN",
+            "reason": "Ownership of a red notebook is unrelated to the hypothesis about water exposure."
+          }
+        }
+      },
+      "selection": {
+        "chosen": "H2",
+        "counts": {
+          "H2": 1
+        },
+        "votes": [
+          {
+            "answer": "H2",
+            "text": "ANSWER: H2"
+          }
+        ],
+        "tie_breaker": null
+      },
+      "critique": {
+        "verdict": "KEEP",
+        "note": "The evaluation correctly identifies that F2 contradicts H1 (no rain) and supports H2 (sprinkler plausible). The claim that H1's compatibility with F1 is \"non-unique\" was not present in the current evaluation, which correctly marks F1 as SUPPORT for H1. No concrete errors in reasoning, fact omission, or contradiction are identified. The choice of H2 is valid given F2's contradiction of H1.",
+        "text": "The evaluation correctly identifies that F2 contradicts H1 (no rain) and supports H2 (sprinkler plausible). The claim that H1's compatibility with F1 is \"non-unique\" was not present in the current evaluation, which correctly marks F1 as SUPPORT for H1. No concrete errors in reasoning, fact omission, or contradiction are identified. The choice of H2 is valid given F2's contradiction of H1. \n\nREVIEW: KEEP"
+      },
+      "revision": null,
+      "final": "H2",
+      "previous_final": "H2",
+      "changed_from_previous": false,
+      "seconds": 50.32,
+      "tokens": 2104,
+      "calls": [
+        {
+          "stage": "evaluate H1",
+          "seconds": 9.13,
+          "tokens": 381,
+          "done_reason": "stop",
+          "response": "F1: SUPPORT | Wet clothes are consistent with getting soaked in the rain.  \nF2: CONTRADICT | No precipitation contradicts the hypothesis of getting soaked in the rain.  \nF3: UNKNOWN | Ownership of a red notebook is unrelated to the hypothesis."
+        },
+        {
+          "stage": "evaluate H2",
+          "seconds": 9.17,
+          "tokens": 386,
+          "done_reason": "stop",
+          "response": "F1: SUPPORT | Wet clothes could result from a garden sprinkler splashing the person.  \nF2: UNKNOWN | Lack of precipitation does not rule out a garden sprinkler as a source of water.  \nF3: UNKNOWN | Ownership of a red notebook is unrelated to the hypothesis about water exposure."
+        },
+        {
+          "stage": "select 1/1",
+          "seconds": 18.93,
+          "tokens": 796,
+          "done_reason": "stop",
+          "response": "ANSWER: H2"
+        },
+        {
+          "stage": "self-refine critique",
+          "seconds": 13.09,
+          "tokens": 541,
+          "done_reason": "stop",
+          "response": "The evaluation correctly identifies that F2 contradicts H1 (no rain) and supports H2 (sprinkler plausible). The claim that H1's compatibility with F1 is \"non-unique\" was not present in the current evaluation, which correctly marks F1 as SUPPORT for H1. No concrete errors in reasoning, fact omission, or contradiction are identified. The choice of H2 is valid given F2's contradiction of H1. \n\nREVIEW: KEEP"
+        }
+      ],
+      "configuration": {
+        "k": 1,
+        "n_generate": 3,
+        "evaluate": true,
+        "self_refine": true,
+        "history": true
+      },
+      "model": "qwen3:14b"
+    }
+  ]
+}
