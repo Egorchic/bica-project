@@ -5,14 +5,13 @@
 """
 
 import argparse
-from dataclasses import asdict
 import json
 import os
 from pathlib import Path
 import re
 import sys
 
-from bica_agent.client import OllamaLLM
+from bica_agent.client import IncompleteLLMResponse, OllamaLLM
 from .anli import (CONFIG, DATASET, PROMPT_VERSION, SPLIT, ANLICase,
                    cohort_hash, load_validation, make_direct_prompt,
                    parse_answer, select_indices)
@@ -60,9 +59,18 @@ def run_baseline(rows, *, llm, output_dir: Path, count: int = 30, offset: int = 
         print(f"[{n}/{count}] idx={case.index}: запрос к LLM...", flush=True)
         prompt = make_direct_prompt(case)
         # Модель получает только prompt. Gold применяется уже после её ответа.
-        reply = llm.ask(prompt, seed=generation_seed + case.index,
-                        stage="anli_direct_baseline")
-        prediction = parse_answer(reply.text)
+        # Truncation is NOT a broken connection: preserve the response metrics
+        # and count the example as invalid rather than terminating the run.
+        try:
+            reply = llm.ask(prompt, seed=generation_seed + case.index,
+                            stage="anli_direct_baseline")
+            prediction = parse_answer(reply.text)
+            invalid_reason = None if prediction is not None else "invalid_format"
+        except IncompleteLLMResponse as exc:
+            reply = exc.reply
+            prediction = None
+            invalid_reason = ("truncated" if reply.done_reason == "length"
+                              else "incomplete_response")
         item = {
             "index": case.index, "prediction": prediction, "gold": case.gold,
             "correct": prediction == case.gold,
@@ -71,10 +79,12 @@ def run_baseline(rows, *, llm, output_dir: Path, count: int = 30, offset: int = 
             "output_tokens": reply.tokens, "calls": 1,
             "generation_seed": generation_seed + case.index,
             "done_reason": reply.done_reason,
+            "invalid_reason": invalid_reason,
         }
         save_json(result_path, item)
+        status = (f" | ошибка={invalid_reason}" if invalid_reason else "")
         print(f"  ответ={prediction} | правильный={case.gold} | "
-              f"время={reply.seconds:.1f}с | токены={reply.tokens}", flush=True)
+              f"время={reply.seconds:.1f}с | токены={reply.tokens}{status}", flush=True)
         save_json(output_dir / "summary.json", calculate_summary(output_dir, indices))
 
     summary = calculate_summary(output_dir, indices)
@@ -88,9 +98,10 @@ def calculate_summary(output_dir: Path, indices: list[int]) -> dict:
     n = len(results)
     good = sum(bool(r["correct"]) for r in results)
     invalid = sum(not r["valid"] for r in results)
+    truncated = sum(r.get("invalid_reason") == "truncated" for r in results)
     return {
         "selected": len(indices), "processed": n,
-        "correct": good, "invalid": invalid,
+        "correct": good, "invalid": invalid, "truncated": truncated,
         "accuracy_on_processed": round(good / n, 6) if n else None,
         "total_seconds": round(sum(r["seconds"] for r in results), 2),
         "output_tokens": sum(r["output_tokens"] for r in results),

@@ -2,7 +2,7 @@ import json
 
 import pytest
 
-from bica_agent.client import LLMReply
+from bica_agent.client import LLMReply, IncompleteLLMResponse
 from experiments.anli import ANLICase, make_direct_prompt, parse_answer, select_indices
 from experiments.run_anli_baseline import calculate_summary, run_baseline
 
@@ -87,3 +87,40 @@ def test_invalid_answers_are_not_silently_dropped(tmp_path):
     assert result["invalid"] == 1
     assert result["correct"] == 0
     assert result["accuracy_on_processed"] == 0
+
+
+class TruncatedLLM:
+    def ask(self, prompt, *, seed, stage):
+        raise IncompleteLLMResponse(
+            LLMReply(text="", seconds=77.2, tokens=2400, done_reason="length"),
+            stage,
+        )
+
+
+def test_truncation_is_saved_as_invalid_with_costs(tmp_path):
+    summary = run_baseline([row(1)], llm=TruncatedLLM(), output_dir=tmp_path, count=1)
+    assert summary["complete"] is True
+    assert summary["correct"] == 0
+    assert summary["invalid"] == 1
+    assert summary["truncated"] == 1
+    assert summary["total_seconds"] == 77.2
+    assert summary["output_tokens"] == 2400
+    path = next((tmp_path / "predictions").glob("*.json"))
+    saved = json.loads(path.read_text(encoding="utf-8"))
+    assert saved["prediction"] is None
+    assert saved["invalid_reason"] == "truncated"
+    assert saved["done_reason"] == "length"
+    assert saved["calls"] == 1
+    # A repeated command must never silently replace recorded model failures.
+    assert run_baseline([row(1)], llm=TruncatedLLM(), output_dir=tmp_path, count=1) == summary
+
+
+class NetworkFailureLLM:
+    def ask(self, prompt, *, seed, stage):
+        raise ConnectionError("network unavailable")
+
+
+def test_connection_errors_are_not_counted_as_model_mistakes(tmp_path):
+    with pytest.raises(ConnectionError, match="network unavailable"):
+        run_baseline([row(1)], llm=NetworkFailureLLM(), output_dir=tmp_path, count=1)
+    assert not list((tmp_path / "predictions").glob("*.json"))
