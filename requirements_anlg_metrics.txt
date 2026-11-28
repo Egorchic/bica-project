@@ -1,0 +1,4 @@
+sacrebleu>=2.4
+rouge-score>=0.1.2
+# Optional, only for --bertscore:
+# bert-score>=0.3.13
